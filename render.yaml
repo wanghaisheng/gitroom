@@ -1,35 +1,18 @@
+# render.yaml
 services:
   - name: postiz-postgres
-    type: webService
-    env: docker
-    docker:
-      image: postgres:17-alpine
-    envVars:
-      - key: POSTGRES_PASSWORD
-        value: postiz-local-pwd
-      - key: POSTGRES_USER
-        value: postiz-local
-      - key: POSTGRES_DB
-        value: postiz-db-local
-    mounts:
-      - type: volume
-        name: postgres-data
-        mountPath: /var/lib/postgresql/data
+    type: database
     plan: starter
-    healthCheckPath: /
-    internalPort: 5432
+    databaseName: postiz-db-local
+    user: postiz-local
+    password: postiz-local-pwd
 
   - name: postiz-redis
-    type: webService
-    env: docker
-    docker:
-      image: redis:7-alpine
+    type: redis
     plan: starter
-    healthCheckPath: /
-    internalPort: 6379
 
   - name: postiz-pg-admin
-    type: webService
+    type: web
     env: docker
     docker:
       image: dpage/pgadmin4:latest
@@ -40,21 +23,15 @@ services:
         value: admin
     plan: starter
     healthCheckPath: /
-    internalPort: 80
+    ports:
+      - 80
 
   - name: postiz-redisinsight
-    type: webService
+    type: web
     env: docker
     docker:
       image: redis/redisinsight:latest
-    mounts:
-      - type: volume
-        name: redisinsight-data
-        mountPath: /data
     plan: starter
     healthCheckPath: /
-    internalPort: 5540
-
-volumes:
-  - name: postgres-data
-  - name: redisinsight-data
+    ports:
+      - 5540

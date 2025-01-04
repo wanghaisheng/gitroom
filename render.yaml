@@ -27,22 +27,20 @@ services:
   # PgAdmin Web Interface
   - type: web
     name: postiz-pg-admin
-    env: docker
-    image: dpage/pgadmin4:latest
+    plan: starter
     envVars:
       - key: PGADMIN_DEFAULT_EMAIL
         value: admin@admin.com
       - key: PGADMIN_DEFAULT_PASSWORD
         value: admin
-    plan: starter
     healthCheckPath: /
-    internalPort: 80
+    docker:
+      image: dpage/pgadmin4:latest
 
   # RedisInsight Web Interface
   - type: web
     name: postiz-redisinsight
-    env: docker
-    image: redis/redisinsight:latest
+    plan: starter
     envVars:
       - key: REDIS_HOST
         fromService:
@@ -54,15 +52,6 @@ services:
           name: postiz-redis
           type: pserv
           property: port
-    mounts:
-      - type: volume
-        name: redisinsight-data
-        mountPath: /data
-    plan: starter
     healthCheckPath: /
-    internalPort: 5540
-
-volumes:
-  - name: postgres-data
-  - name: redis-data
-  - name: redisinsight-data
+    docker:
+      image: redis/redisinsight:latest

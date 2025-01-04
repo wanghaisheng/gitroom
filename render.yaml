@@ -1,7 +1,7 @@
 # render.yml
 services:
   - name: postiz-postgres
-    type: service
+    type: privateService
     env: docker
     docker:
       image: postgres:17-alpine
@@ -17,20 +17,18 @@ services:
         name: postgres-data
         mountPath: /var/lib/postgresql/data
     plan: starter
-    ports:
-      - 5432
+    healthCheckPath: /
 
   - name: postiz-redis
-    type: service
+    type: privateService
     env: docker
     docker:
       image: redis:7-alpine
     plan: starter
-    ports:
-      - 6379
+    healthCheckPath: /
 
   - name: postiz-pg-admin
-    type: service
+    type: webService
     env: docker
     docker:
       image: dpage/pgadmin4:latest
@@ -40,11 +38,12 @@ services:
       - key: PGADMIN_DEFAULT_PASSWORD
         value: admin
     plan: starter
+    healthCheckPath: /
     ports:
       - 80
 
   - name: postiz-redisinsight
-    type: service
+    type: webService
     env: docker
     docker:
       image: redis/redisinsight:latest
@@ -53,6 +52,7 @@ services:
         name: redisinsight-data
         mountPath: /data
     plan: starter
+    healthCheckPath: /
     ports:
       - 5540
 

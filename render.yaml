@@ -1,6 +1,7 @@
 services:
-  - name: postiz-postgres
-    type: web
+  # PostgreSQL Database Service
+  - type: pserv
+    name: postiz-postgres
     env: docker
     docker:
       image: postgres:17-alpine
@@ -11,25 +12,25 @@ services:
         value: postiz-local
       - key: POSTGRES_DB
         value: postiz-db-local
-    mounts:
-      - type: volume
-        name: postgres-data
-        mountPath: /var/lib/postgresql/data
-    plan: starter
-    healthCheckPath: /
-    internalPort: 5432
+    disk:
+      name: postgres-data
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 10
 
-  - name: postiz-redis
-    type: web
+  # Redis Service
+  - type: pserv
+    name: postiz-redis
     env: docker
     docker:
       image: redis:7-alpine
-    plan: starter
-    healthCheckPath: /
-    internalPort: 6379
+    disk:
+      name: redis-data
+      mountPath: /data
+      sizeGB: 5
 
-  - name: postiz-pg-admin
-    type: web
+  # PgAdmin Web Interface
+  - type: web
+    name: postiz-pg-admin
     env: docker
     docker:
       image: dpage/pgadmin4:latest
@@ -38,23 +39,34 @@ services:
         value: admin@admin.com
       - key: PGADMIN_DEFAULT_PASSWORD
         value: admin
-    plan: starter
     healthCheckPath: /
     internalPort: 80
 
-  - name: postiz-redisinsight
-    type: web
+  # RedisInsight Web Interface
+  - type: web
+    name: postiz-redisinsight
     env: docker
     docker:
       image: redis/redisinsight:latest
+    envVars:
+      - key: REDIS_HOST
+        fromService:
+          name: postiz-redis
+          type: pserv
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          name: postiz-redis
+          type: pserv
+          property: port
     mounts:
       - type: volume
         name: redisinsight-data
         mountPath: /data
-    plan: starter
     healthCheckPath: /
     internalPort: 5540
 
 volumes:
   - name: postgres-data
+  - name: redis-data
   - name: redisinsight-data

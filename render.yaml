@@ -1,59 +1,68 @@
 services:
-  postiz-postgres:
-    # ref: https://hub.docker.com/_/postgres
-    image: postgres:17-alpine # 17.0
-    container_name: postiz-postgres
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: postiz-local-pwd
-      POSTGRES_USER: postiz-local
-      POSTGRES_DB: postiz-db-local
-    volumes:
-      - postgres-volume:/var/lib/postgresql/data
+  - type: web
+    name: postiz-app-devcontainer
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerfileTarget: devcontainer
+    buildCommand: npm ci --no-fund && npx nx run-many --target=build --projects=frontend,backend,workers,cron
+    startCommand: /app/entrypoint.sh
+    envVars:
+      - key: NODE_VERSION
+        value: "20.17"
+      - key: NPM_CONFIG_UPDATE_NOTIFIER
+        value: "false"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+    mounts:
+      - type: volume
+        path: /config
+      - type: volume
+        path: /uploads
     ports:
-      - 5432:5432
-    networks:
-      - postiz-network
-  postiz-redis:
-    # ref: https://hub.docker.com/_/redis
-    image: redis:7-alpine # 7.4.0
-    container_name: postiz-redis
-    restart: always
+      - 3000
+      - 4200
+      - 5000
+    labels:
+      - key: org.opencontainers.image.title
+        value: "Postiz App (DevContainer)"
+      - key: org.opencontainers.image.source
+        value: "https://github.com/gitroomhq/postiz-app"
+
+  - type: web
+    name: postiz-app-dist
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerfileTarget: dist
+    startCommand: /app/entrypoint.sh
+    envVars:
+      - key: NODE_VERSION
+        value: "20.17"
+      - key: NPM_CONFIG_UPDATE_NOTIFIER
+        value: "false"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+    mounts:
+      - type: volume
+        path: /config
+      - type: volume
+        path: /uploads
     ports:
-      - 6379:6379
-    networks:
-      - postiz-network
-  postiz-pg-admin:
-    # ref: https://hub.docker.com/r/dpage/pgadmin4/tags
-    image: dpage/pgadmin4:latest
-    container_name: postiz-pg-admin
-    restart: always
-    ports:
-      - 8081:80
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    networks:
-      - postiz-network
-  postiz-redisinsight:
-    # ref: https://hub.docker.com/r/redis/redisinsight
-    image: redis/redisinsight:latest
-    container_name: postiz-redisinsight
-    links:
-      - postiz-redis
-    ports:
-      - "5540:5540"
-    volumes:
-      - redisinsight:/data
-    networks:
-      - postiz-network
-    restart: always
+      - 3000
+      - 4200
+      - 5000
+    labels:
+      - key: org.opencontainers.image.title
+        value: "Postiz App (Production)"
+      - key: org.opencontainers.image.source
+        value: "https://github.com/gitroomhq/postiz-app"
 
 volumes:
-  redisinsight:
-  postgres-volume:
-    external: false
+  - name: config
+    type: persistent
+    storageClass: standard
+    path: /config
 
-networks:
-  postiz-network:
-    external: false
+  - name: uploads
+    type: persistent
+    storageClass: standard
+    path: /uploads

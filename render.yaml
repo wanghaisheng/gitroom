@@ -34,8 +34,8 @@ services:
       - key: PGADMIN_DEFAULT_PASSWORD
         value: admin
     healthCheckPath: /
-    docker:
-      image: dpage/pgadmin4:latest
+    buildCommand: ""  # Leave blank as this is a Docker image
+    startCommand: ""  # Leave blank as this is a Docker image
 
   # RedisInsight Web Interface
   - type: web
@@ -53,5 +53,5 @@ services:
           type: pserv
           property: port
     healthCheckPath: /
-    docker:
-      image: redis/redisinsight:latest
+    buildCommand: ""  # Leave blank as this is a Docker image
+    startCommand: ""  # Leave blank as this is a Docker image

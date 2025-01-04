@@ -1,0 +1,61 @@
+# render.yml
+services:
+  - name: postiz-postgres
+    type: service
+    env: docker
+    docker:
+      image: postgres:17-alpine
+    envVars:
+      - key: POSTGRES_PASSWORD
+        value: postiz-local-pwd
+      - key: POSTGRES_USER
+        value: postiz-local
+      - key: POSTGRES_DB
+        value: postiz-db-local
+    mounts:
+      - type: volume
+        name: postgres-data
+        mountPath: /var/lib/postgresql/data
+    plan: starter
+    ports:
+      - 5432
+
+  - name: postiz-redis
+    type: service
+    env: docker
+    docker:
+      image: redis:7-alpine
+    plan: starter
+    ports:
+      - 6379
+
+  - name: postiz-pg-admin
+    type: service
+    env: docker
+    docker:
+      image: dpage/pgadmin4:latest
+    envVars:
+      - key: PGADMIN_DEFAULT_EMAIL
+        value: admin@admin.com
+      - key: PGADMIN_DEFAULT_PASSWORD
+        value: admin
+    plan: starter
+    ports:
+      - 80
+
+  - name: postiz-redisinsight
+    type: service
+    env: docker
+    docker:
+      image: redis/redisinsight:latest
+    mounts:
+      - type: volume
+        name: redisinsight-data
+        mountPath: /data
+    plan: starter
+    ports:
+      - 5540
+
+volumes:
+  - name: postgres-data
+  - name: redisinsight-data

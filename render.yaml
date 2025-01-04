@@ -14,6 +14,7 @@ services:
       name: postgres-data
       mountPath: /var/lib/postgresql/data
       sizeGB: 10
+    startCommand: ""  # No command required for managed PostgreSQL service
 
   # Redis Service
   - type: pserv
@@ -23,6 +24,7 @@ services:
       name: redis-data
       mountPath: /data
       sizeGB: 5
+    startCommand: ""  # No command required for managed Redis service
 
   # PgAdmin Web Interface
   - type: web
@@ -34,8 +36,7 @@ services:
       - key: PGADMIN_DEFAULT_PASSWORD
         value: admin
     healthCheckPath: /
-    buildCommand: ""  # Leave blank as this is a Docker image
-    startCommand: ""  # Leave blank as this is a Docker image
+    startCommand: "python3 /usr/local/bin/pgadmin4"  # Assuming it's a Python-based service
 
   # RedisInsight Web Interface
   - type: web
@@ -53,5 +54,4 @@ services:
           type: pserv
           property: port
     healthCheckPath: /
-    buildCommand: ""  # Leave blank as this is a Docker image
-    startCommand: ""  # Leave blank as this is a Docker image
+    startCommand: "redisinsight"  # RedisInsight has a command to start the service

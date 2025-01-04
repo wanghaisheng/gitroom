@@ -1,7 +1,6 @@
-# render.yml
 services:
   - name: postiz-postgres
-    type: privateService
+    type: webService
     env: docker
     docker:
       image: postgres:17-alpine
@@ -18,14 +17,16 @@ services:
         mountPath: /var/lib/postgresql/data
     plan: starter
     healthCheckPath: /
+    internalPort: 5432
 
   - name: postiz-redis
-    type: privateService
+    type: webService
     env: docker
     docker:
       image: redis:7-alpine
     plan: starter
     healthCheckPath: /
+    internalPort: 6379
 
   - name: postiz-pg-admin
     type: webService
@@ -39,8 +40,7 @@ services:
         value: admin
     plan: starter
     healthCheckPath: /
-    ports:
-      - 80
+    internalPort: 80
 
   - name: postiz-redisinsight
     type: webService
@@ -53,8 +53,7 @@ services:
         mountPath: /data
     plan: starter
     healthCheckPath: /
-    ports:
-      - 5540
+    internalPort: 5540
 
 volumes:
   - name: postgres-data

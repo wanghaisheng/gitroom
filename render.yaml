@@ -2,9 +2,7 @@ services:
   # PostgreSQL Database Service
   - type: pserv
     name: postiz-postgres
-    env: docker
-    docker:
-      image: postgres:17-alpine
+    plan: starter
     envVars:
       - key: POSTGRES_PASSWORD
         value: postiz-local-pwd
@@ -20,9 +18,7 @@ services:
   # Redis Service
   - type: pserv
     name: postiz-redis
-    env: docker
-    docker:
-      image: redis:7-alpine
+    plan: starter
     disk:
       name: redis-data
       mountPath: /data
@@ -32,13 +28,13 @@ services:
   - type: web
     name: postiz-pg-admin
     env: docker
-    docker:
-      image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:latest
     envVars:
       - key: PGADMIN_DEFAULT_EMAIL
         value: admin@admin.com
       - key: PGADMIN_DEFAULT_PASSWORD
         value: admin
+    plan: starter
     healthCheckPath: /
     internalPort: 80
 
@@ -46,8 +42,7 @@ services:
   - type: web
     name: postiz-redisinsight
     env: docker
-    docker:
-      image: redis/redisinsight:latest
+    image: redis/redisinsight:latest
     envVars:
       - key: REDIS_HOST
         fromService:
@@ -63,6 +58,7 @@ services:
       - type: volume
         name: redisinsight-data
         mountPath: /data
+    plan: starter
     healthCheckPath: /
     internalPort: 5540
 
